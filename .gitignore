@@ -1,0 +1,10 @@
+*.a
+*.o
+*.spec
+
+config.*
+Makefile
+prboom*
+stamp*
+
+.deps
