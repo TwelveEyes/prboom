@@ -2853,7 +2853,8 @@ enum {
 //  general_muscard,
 //  general_detvoices,
   general_sndchan,
-  general_pitch
+  general_pitch,
+  general_full_sounds,
 };
 
 #define G_X 250
@@ -2931,6 +2932,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Enable v1.1 Pitch Effects", S_YESNO, m_null, G_X,
    G_YA3 + general_pitch*8, {"pitched_sounds"}},
+
+  {"Disable Sound Cutoffs", S_YESNO, m_null, G_X,
+   G_YA3 + general_full_sounds*8, {"full_sounds"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
