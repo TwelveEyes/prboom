@@ -75,6 +75,8 @@
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}
 
+extern boolean r_wiggle_fix;
+
 /*
  * M_WriteFile
  *
@@ -349,6 +351,8 @@ default_t defaults[] =
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
   {"patch_edges",{(int*)&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
+  {"r_wiggle_fix",{(int*)&r_wiggle_fix, NULL},{1, NULL},0,1,
+   def_bool,ss_gen,NULL, NULL},
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

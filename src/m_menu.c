@@ -3028,6 +3028,7 @@ enum {
   general_spriteedges,
   general_patchedges,
   general_hom,
+  general_wigglefix
 };
 
 #define G_YC  44
@@ -3062,6 +3063,9 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
 
   {"Flashing HOM indicator", S_YESNO, m_null, G_X,
    G_YC + general_hom*8, {"flashing_hom"}},
+
+  {"Wiggle geometry fix", S_YESNO, m_null, G_X,
+   G_YC + general_wigglefix*8, {"r_wiggle_fix"}},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings2}},
 
