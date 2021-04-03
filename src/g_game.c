@@ -150,6 +150,7 @@ int     key_menu_down;
 int     key_menu_backspace;                                  //     ^
 int     key_menu_escape;                                     //     |
 int     key_menu_enter;                                      // phares 3/7/98
+int     key_menu_clear;
 int     key_strafeleft;
 int     key_straferight;
 int     key_fire;
@@ -1746,13 +1747,13 @@ void (CheckSaveGame)(size_t size, const char* file, int line)
  * cph - Avoid possible buffer overflow problems by passing
  * size to this function and using snprintf */
 
-void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
+int G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
 #ifdef HAVE_SNPRINTF
-  snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
+  return snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #else
-  sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
+  return sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #endif
 }
 

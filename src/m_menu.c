@@ -712,6 +712,26 @@ menu_t LoadDef =
 
 #define LOADGRAPHIC_Y 8
 
+// [FG] delete a savegame
+
+static boolean delete_verify = false;
+
+static void M_DrawDelVerify(void);
+
+static void M_DeleteGame(int i)
+{
+  char *name;
+  int len;
+
+  len = G_SaveGameName(NULL, 0, i, false);
+  name = malloc(len+1);
+  G_SaveGameName(name, len+1, i, false);
+  remove(name);
+  free(name);
+
+  M_ReadSaveStrings();
+}
+
 //
 // M_LoadGame & Cie.
 //
@@ -727,6 +747,9 @@ void M_DrawLoad(void)
     M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
   }
+
+  if (delete_verify)
+    M_DrawDelVerify();
 }
 
 //
@@ -785,6 +808,8 @@ void M_ForcedLoadGame(const char *msg)
 
 void M_LoadGame (int choice)
 {
+  delete_verify = false;
+
   /* killough 5/26/98: exclude during demo recordings
    * cph - unless a new demo */
   if (demorecording && (compatibility_level < prboom_2_compatibility))
@@ -876,6 +901,9 @@ void M_DrawSave(void)
     i = M_StringWidth(savegamestrings[saveSlot]);
     M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_");
     }
+
+  if (delete_verify)
+    M_DrawDelVerify();
 }
 
 //
@@ -911,6 +939,8 @@ void M_SaveSelect(int choice)
 //
 void M_SaveGame (int choice)
 {
+  delete_verify = false;
+
   // killough 10/6/98: allow savegames during single-player demo playback
   if (!usergame && (!demoplayback || netgame))
     {
@@ -2022,6 +2052,17 @@ static void M_DrawDefVerify(void)
   }
 }
 
+// [FG] delete a savegame
+
+static void M_DrawDelVerify(void)
+{
+  V_DrawNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,0,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
+
+  if (whichSkull) {
+    strcpy(menu_buffer,"Delete savegame? (Y or N)");
+    M_DrawMenuString(VERIFYBOXXORG+8,VERIFYBOXYORG+8,CR_RED);
+  }
+}
 
 /////////////////////////////
 //
@@ -2183,6 +2224,7 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"BACKSPACE"   ,S_KEY       ,m_menu,KB_X,KB_Y+17*8,{&key_menu_backspace}},
   {"SELECT ITEM" ,S_KEY       ,m_menu,KB_X,KB_Y+18*8,{&key_menu_enter}},
   {"EXIT"        ,S_KEY       ,m_menu,KB_X,KB_Y+19*8,{&key_menu_escape}},
+  {"CLEAR"       ,S_KEY       ,m_menu,KB_X,KB_Y+20*8,{&key_menu_clear}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -4399,6 +4441,27 @@ boolean M_Responder (event_t* ev) {
     return false;
     }
 
+  // [FG] delete a savegame
+
+  if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+  {
+    if (delete_verify)
+    {
+      if (toupper(ch) == 'Y')
+      {
+        M_DeleteGame(itemOn);
+        S_StartSound(NULL,sfx_itemup);
+        delete_verify = false;
+      }
+      else if (toupper(ch) == 'N')
+      {
+        S_StartSound(NULL,sfx_itemup);
+        delete_verify = false;
+      }
+      return true;
+    }
+  }
+
   // phares 3/26/98 - 4/11/98:
   // Setup screen key processing
 
@@ -4914,6 +4977,22 @@ boolean M_Responder (event_t* ev) {
     return true;
   }
 
+      if (ch == key_menu_clear)
+  {
+    if (ptr1->m_flags & S_KEY)
+    {
+        if (ptr1->m_joy)
+          *ptr1->m_joy = -1;
+
+        if (ptr1->m_mouse)
+          *ptr1->m_mouse = -1;
+
+        *ptr1->var.m_key = 0;
+    }
+
+    return true;
+  }
+
       if (ch == key_menu_enter)
   {
     int flags = ptr1->m_flags;
@@ -5164,6 +5243,26 @@ boolean M_Responder (event_t* ev) {
   }
       return true;
     }
+
+  // [FG] delete a savegame
+
+  else if (ch == key_menu_clear)
+  {
+    if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+    {
+      if (LoadMenue[itemOn].status)
+      {
+        S_StartSound(NULL,sfx_itemup);
+        currentMenu->lastOn = itemOn;
+        delete_verify = true;
+        return true;
+      }
+      else
+      {
+        S_StartSound(NULL,sfx_oof);
+      }
+    }
+  }
 
   else
     {

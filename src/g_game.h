@@ -62,7 +62,7 @@ void G_WorldDone(void);
 void G_EndGame(void); /* cph - make m_menu.c call a G_* function for this */
 void G_Ticker(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
-void G_SaveGameName(char *, size_t, int, boolean); /* killough 3/22/98: sets savegame filename */
+int G_SaveGameName(char *, size_t, int, boolean); /* killough 3/22/98: sets savegame filename */
 void G_SetFastParms(int);        // killough 4/10/98: sets -fast parameters
 void G_DoNewGame(void);
 void G_DoReborn(int playernum);
@@ -98,6 +98,7 @@ extern int  key_menu_down;
 extern int  key_menu_backspace;                              //     ^
 extern int  key_menu_escape;                                 //     |
 extern int  key_menu_enter;                                  // phares 3/7/98
+extern int  key_menu_clear;
 extern int  key_strafeleft;
 extern int  key_straferight;
 
