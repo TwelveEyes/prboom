@@ -2548,6 +2548,11 @@ void gld_AddSprite(vissprite_t *vspr)
   else
     sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
   sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+  // [FG] colored blood and gibs
+  if (pSpr->flags & MF_COLOREDBLOOD)
+  {
+    sprite.cm = (pSpr->flags & MF_TRANSLATION1) ? CR_BLUE2 : CR_GREEN;
+  }
   sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
   if (!sprite.gltexture)
     return;

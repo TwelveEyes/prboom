@@ -218,6 +218,9 @@
 #define MF_BOUNCES         LONGLONG(0x0000000200000000)
 #define MF_FRIEND          LONGLONG(0x0000000400000000)
 
+// [FG] colored blood and gibs
+#define MF_COLOREDBLOOD    LONGLONG(0x0000040000000000)
+
 // killough 9/15/98: Same, but internal flags, not intended for .deh
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
@@ -385,13 +388,16 @@ typedef struct mobj_s
 extern int iquehead;
 extern int iquetail;
 
+extern boolean colored_blood;
+
 void    P_RespawnSpecials(void);
 mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 void    P_RemoveMobj(mobj_t *th);
 boolean P_SetMobjState(mobj_t *mobj, statenum_t state);
 void    P_MobjThinker(mobj_t *mobj);
 void    P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
-void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage);
+uint_64_t P_ColoredBlood (mobj_t* bleeder);
+void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t* bleeder);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 void    P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);
 boolean P_IsDoomnumAllowed(int doomnum);

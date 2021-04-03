@@ -251,6 +251,8 @@ default_t defaults[] =
    def_bool, ss_enem, &dog_jumping},
 #endif
    /* End of MBF AI extras */
+  {"colored_blood",{(int*)&colored_blood}, {0}, 0, 1,
+   def_bool, ss_none},
 
   {"sts_always_red",{&sts_always_red},{1},0,1, // no color changes on status bar
    def_bool,ss_stat},
@@ -296,7 +298,7 @@ default_t defaults[] =
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
   {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
-  {"full_sounds",{&full_sounds},{1},0,1,     // [FG]
+  {"full_sounds",{&full_sounds},{0},0,1,     // [FG]
    def_bool,ss_none}, // disable sound cutoffs
   {"samplerate",{&snd_samplerate},{22050},11025,48000, def_int,ss_none},
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none},

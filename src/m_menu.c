@@ -2728,6 +2728,8 @@ enum {
   enem_dog_jumping,
 #endif
 
+  enem_colored_blood,
+
   enem_end
 };
 
@@ -2760,6 +2762,8 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
 #endif
+
+  {"Colored blood and gibs",S_YESNO,m_null,E_X,E_Y+ enem_colored_blood*8, {"colored_blood"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
