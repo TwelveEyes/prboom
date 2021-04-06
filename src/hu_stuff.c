@@ -77,9 +77,9 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_COORDY_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
 #define HU_COORDZ_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
 // [FG] level stats and level time widgets
-#define HU_LSTATK_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
-#define HU_LSTATI_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
-#define HU_LSTATS_Y (4 + 3*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATK_Y (16 + 16*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATI_Y (17 + 17*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATS_Y (18 + 18*hu_font['A'-HU_FONTSTART].height)
 
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
