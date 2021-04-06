@@ -635,7 +635,7 @@ void HU_Start(void)
     HU_LSTATK_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED
+    hudcolor_mesg
   );
   HUlib_initTextLine
   (
@@ -644,7 +644,7 @@ void HU_Start(void)
     HU_LSTATI_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED
+    hudcolor_mesg
   );
   HUlib_initTextLine
   (
@@ -653,7 +653,7 @@ void HU_Start(void)
     HU_LSTATS_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED
+    hudcolor_mesg
   );
   HUlib_initTextLine
   (
@@ -662,7 +662,7 @@ void HU_Start(void)
     HU_LTIME_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED
+    hudcolor_mesg
   );
 
   if (map_level_stats)
