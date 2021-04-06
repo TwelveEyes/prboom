@@ -692,6 +692,8 @@ default_t defaults[] =
    def_bool,ss_none}, // enables display of HUD
   {"hud_nosecrets", {&hud_nosecrets},  {0},0,1, // no secrets/items/kills HUD line
    def_bool,ss_stat}, // disables display of kills/items/secrets on HUD
+  {"hud_secret_message", {&hud_secret_message}, {0},0,1, // "A secret is revealed!" message
+   def_bool,ss_none}, // enables display of secret message
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:

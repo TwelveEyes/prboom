@@ -582,6 +582,9 @@ extern const char *s_HUSTR_TALKTOSELF5; // = HUSTR_TALKTOSELF5;
 //#define HUSTR_MESSAGESENT     "[Message Sent]"
 extern const char *s_HUSTR_MESSAGESENT; // = HUSTR_MESSAGESENT;
 
+//#define HUSTR_SECRETFOUND     "A secret is revealed!"
+extern const char *s_HUSTR_SECRETFOUND; // = HUSTR_SECRETFOUND;
+
 // The following should NOT be changed unless it seems
 // just AWFULLY necessary
 

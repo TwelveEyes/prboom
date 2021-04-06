@@ -50,6 +50,7 @@
 int hud_active;       //jff 2/17/98 controls heads-up display mode
 int hud_displayed;    //jff 2/23/98 turns heads-up display on/off
 int hud_nosecrets;    //jff 2/18/98 allows secrets line to be disabled in HUD
+int hud_secret_message; // "A secret is revealed!" message
 int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 
@@ -192,6 +193,7 @@ static hu_textline_t  w_lstatk; // [FG] level stats (kills) widget
 static hu_textline_t  w_lstati; // [FG] level stats (items) widget
 static hu_textline_t  w_lstats; // [FG] level stats (secrets) widget
 static hu_textline_t  w_ltime;  // [FG] level time widget
+static hu_stext_t     w_secret; // [crispy] secret message widget
 
 static boolean    always_off = false;
 static char       chat_dest[MAXPLAYERS];
@@ -204,6 +206,8 @@ static int        message_counter;
 extern int        showMessages;
 extern boolean    automapactive;
 static boolean    headsupactive = false;
+static boolean    secret_on;
+static int        secret_counter;
 
 //jff 2/16/98 hud supported automap colors added
 int hudcolor_titl;  // color range of automap level title
@@ -419,6 +423,7 @@ void HU_Start(void)
   message_dontfuckwithme = false;
   message_nottobefuckedwith = false;
   chat_on = false;
+  secret_on = false;
 
   // create the message widget
   // messages to player in upper-left of screen
@@ -432,6 +437,19 @@ void HU_Start(void)
     HU_FONTSTART,
     hudcolor_mesg,
     &message_on
+  );
+
+  // create the secret message widget
+  HUlib_initSText
+  (
+    &w_secret,
+    88,
+    86,
+    HU_MSGHEIGHT,
+    hu_font,
+    HU_FONTSTART,
+    hudcolor_titl,
+    &secret_on
   );
 
   //jff 2/16/98 added some HUD widgets
@@ -1360,6 +1378,10 @@ void HU_Drawer(void)
   if (hud_msg_lines>1 && message_list)
     HUlib_drawMText(&w_rtext);
 
+  // if in secret sector enable secret revealed message
+  if (secret_on)
+    HUlib_drawSText(&w_secret);
+
   // display the interactive buffer for chat entry
   HUlib_drawIText(&w_chat);
 }
@@ -1378,6 +1400,9 @@ void HU_Erase(void)
     HUlib_eraseSText(&w_message);
   else
     HUlib_eraseMText(&w_rtext);
+
+  // erase secret revealed message
+  HUlib_eraseSText(&w_secret);
 
   // erase the interactive text buffer for chat entry
   HUlib_eraseIText(&w_chat);
@@ -1412,12 +1437,26 @@ void HU_Ticker(void)
     bscounter = 8;
   }
 
+  if (secret_counter && !--secret_counter)
+    secret_on = false;
+
   // if messages on, or "Messages Off" is being displayed
   // this allows the notification of turning messages off to be seen
   if (showMessages || message_dontfuckwithme)
   {
+    // [Woof!] "A secret is revealed!" message
+    if (plr->message == s_HUSTR_SECRETFOUND)
+    {
+      extern int M_StringWidth(const char *string);
+      w_secret.l[0].x = 320/2 - M_StringWidth(plr->message)/2;
+
+      HUlib_addMessageToSText(&w_secret, 0, plr->message);
+      plr->message = NULL;
+      secret_on = true;
+      secret_counter = 5*TICRATE/2; // [crispy] 2.5 seconds
+    }
     // display message if necessary
-    if ((plr->message && !message_nottobefuckedwith)
+    else if ((plr->message && !message_nottobefuckedwith)
         || (plr->message && message_dontfuckwithme))
     {
       //post the message to the message widget

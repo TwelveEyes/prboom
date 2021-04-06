@@ -2186,6 +2186,8 @@ void P_ShootSpecialLine
 void P_PlayerInSpecialSector (player_t* player)
 {
   sector_t*   sector;
+  extern int showMessages;
+  extern int hud_secret_message;
 
   sector = player->mo->subsector->sector;
 
@@ -2230,6 +2232,17 @@ void P_PlayerInSpecialSector (player_t* player)
         // Tally player in secret sector, clear secret special
         player->secretcount++;
         sector->special = 0;
+
+        if (showMessages && hud_secret_message && player == &players[consoleplayer])
+        {
+          int sfx_id;
+          player->message = s_HUSTR_SECRETFOUND;
+
+          sfx_id = I_GetSfxLumpNum(&S_sfx[sfx_itmbk]) != -1 ? sfx_itmbk : -1;
+
+          if (sfx_id != -1)
+            S_StartSound(NULL, sfx_id);
+        }
         break;
 
       case 11:
