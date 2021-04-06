@@ -638,6 +638,8 @@ default_t defaults[] =
   //jff 3/9/98 add option to not show secrets til after found
   {"map_secret_after", {&map_secret_after}, {0},0,1, // show secret after gotten
    def_bool,ss_auto}, // prevents showing secret sectors till after entered
+  {"map_level_stats", {&map_level_stats}, {0},0,1, // show kills, items, secrets
+   def_bool,ss_auto}, // [FG] level stats widget
   {"map_point_coord", {&map_point_coordinates}, {0},0,1,
    def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
