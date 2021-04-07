@@ -2914,8 +2914,13 @@ enum {
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
+#ifdef GL_DOOM
 static const char *videomodes[] = {"8bit","15bit","16bit",
                                    "32bit","OpenGL", NULL};
+#else
+static const char *videomodes[] = {"8bit","15bit","16bit",
+                                   "32bit", NULL};
+#endif
 
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
