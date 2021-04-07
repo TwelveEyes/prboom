@@ -383,8 +383,8 @@ static void P_LoadSegs (int lump)
 
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 
-      v1 = (unsigned short)SHORT(ml->v1);
-      v2 = (unsigned short)SHORT(ml->v2);
+      v1 = (unsigned int)SHORT(ml->v1);
+      v2 = (unsigned int)SHORT(ml->v2);
       li->v1 = &vertexes[v1];
       li->v2 = &vertexes[v2];
 
@@ -392,7 +392,7 @@ static void P_LoadSegs (int lump)
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
-      linedef = (unsigned short)SHORT(ml->linedef);
+      linedef = (unsigned int)SHORT(ml->linedef);
       ldef = &lines[linedef];
       li->linedef = ldef;
       side = SHORT(ml->side);
@@ -492,6 +492,8 @@ static void P_LoadSubsectors (int lump)
   /* cph 2006/07/29 - make data a const mapsubsector_t *, so the loop below is simpler & gives no constness warnings */
   const mapsubsector_t *data;
   int  i;
+  mapsubsector_t *ms;
+  subsector_t *ss;
 
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
   subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
@@ -500,14 +502,17 @@ static void P_LoadSubsectors (int lump)
   if ((!data) || (!numsubsectors))
     I_Error("P_LoadSubsectors: no subsectors in level");
 
-  for (i=0; i<numsubsectors; i++)
+  ms = (mapsubsector_t*)data;
+  ss = subsectors;
+  for (i=0; i<numsubsectors; i++, ss++, ms++)
   {
-    subsectors[i].numlines  = (unsigned short)SHORT(data[i].numsegs );
-    subsectors[i].firstline = (unsigned short)SHORT(data[i].firstseg);
+    ss->numlines  = (unsigned int)SHORT(ms->numsegs );
+    ss->firstline = (unsigned int)SHORT(ms->firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
 }
+
 
 //
 // P_LoadSectors
@@ -606,7 +611,14 @@ static void P_LoadNodes (int lump)
       for (j=0 ; j<2 ; j++)
         {
           int k;
-          no->children[j] = SHORT(mn->children[j]);
+          no->children[j] = (unsigned short)SHORT(mn->children[j]);
+
+          // account for children's promotion to 32 bits
+          if (no->children[j] == 0xffff)
+            no->children[j] = 0xffffffff;
+          else if (no->children[j] & 0x8000) // old NF_SUBSECTOR
+            no->children[j] = (no->children[j] &~ 0x8000) | NF_SUBSECTOR;
+
           for (k=0 ; k<4 ; k++)
             no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
         }
