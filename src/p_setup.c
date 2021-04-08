@@ -88,7 +88,6 @@ side_t   *sides;
 #define gNd5            0x35644E67
 #define ZNOD            0x444F4E5A
 #define ZGLN            0x4E4C475A
-#define xNd4            0x34644E78
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
@@ -193,7 +192,7 @@ static boolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
   const void *data;
 
   data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (*(const int *)data == xNd4)
+  if (!memcmp(data, "xNd4\0\0\0\0", 8))
   {
     lprintf(LO_WARN, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
     return true;
@@ -459,7 +458,7 @@ static void P_LoadSegs_V4 (int lump)
       int side, linedef;
       line_t *ldef;
 
-      // li->iSegID = i; // proff 11/05/2000: needed for OpenGL
+      li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 
       li->v1 = &vertexes[ml->v1];
       li->v2 = &vertexes[ml->v2];
