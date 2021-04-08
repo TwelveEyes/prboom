@@ -88,6 +88,7 @@ side_t   *sides;
 #define gNd5            0x35644E67
 #define ZNOD            0x444F4E5A
 #define ZGLN            0x4E4C475A
+#define xNd4            0x34644E78
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
@@ -178,6 +179,26 @@ static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
   data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
   if (*(const int *)data == ZGLN)
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
+
+  return false;
+}
+
+//
+// P_CheckForDeePBSPv4Nodes
+// http://www.sbsoftware.com/files/DeePBSPV4specs.txt
+//
+
+static boolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
+{
+  const void *data;
+
+  data = W_CacheLumpNum(lumpnum + ML_NODES);
+  if (*(const int *)data == xNd4)
+  {
+    lprintf(LO_WARN, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
+    return true;
+  }
+  W_UnlockLumpNum(lumpnum + ML_NODES);
 
   return false;
 }
@@ -417,6 +438,61 @@ static void P_LoadSegs (int lump)
   W_UnlockLumpNum(lump); // cph - release the data
 }
 
+static void P_LoadSegs_V4 (int lump)
+{
+  int  i;
+  const mapseg_v4_t *data; // cph - const
+
+  numsegs = W_LumpLength(lump) / sizeof(mapseg_v4_t);
+  segs = Z_Calloc(numsegs,sizeof(seg_t),PU_LEVEL,0);
+  data = (const mapseg_v4_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
+
+  if ((!data) || (!numsegs))
+    I_Error("P_LoadSegs_V4: no segs in level");
+
+  for (i=0; i<numsegs; i++)
+    {
+      seg_t *li = segs+i;
+      const mapseg_v4_t *ml = data + i;
+      int v1, v2;
+
+      int side, linedef;
+      line_t *ldef;
+
+      // li->iSegID = i; // proff 11/05/2000: needed for OpenGL
+
+      li->v1 = &vertexes[ml->v1];
+      li->v2 = &vertexes[ml->v2];
+
+      li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
+      li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
+      li->angle = (SHORT(ml->angle))<<16;
+      li->offset =(SHORT(ml->offset))<<16;
+      linedef = (unsigned short)SHORT(ml->linedef);
+      ldef = &lines[linedef];
+      li->linedef = ldef;
+      side = SHORT(ml->side);
+      li->sidedef = &sides[ldef->sidenum[side]];
+
+      /* cph 2006/09/30 - our frontsector can be the second side of the
+       * linedef, so must check for NO_INDEX in case we are incorrectly
+       * referencing the back of a 1S line */
+      if (ldef->sidenum[side] != NO_INDEX)
+        li->frontsector = sides[ldef->sidenum[side]].sector;
+      else {
+        li->frontsector = 0;
+        lprintf(LO_WARN, "P_LoadSegs: front of seg %i has no sidedef\n", i);
+      }
+
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
+        li->backsector = sides[ldef->sidenum[side^1]].sector;
+      else
+        li->backsector = 0;
+    }
+
+  W_UnlockLumpNum(lump); // cph - release the data
+}
+
 
 
 /*******************************************
@@ -508,6 +584,28 @@ static void P_LoadSubsectors (int lump)
   {
     ss->numlines  = (unsigned int)SHORT(ms->numsegs );
     ss->firstline = (unsigned int)SHORT(ms->firstseg);
+  }
+
+  W_UnlockLumpNum(lump); // cph - release the data
+}
+
+static void P_LoadSubsectors_V4 (int lump)
+{
+  /* cph 2006/07/29 - make data a const mapsubsector_t *, so the loop below is simpler & gives no constness warnings */
+  const mapsubsector_v4_t *data;
+  int  i;
+
+  numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_v4_t);
+  subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
+  data = (const mapsubsector_v4_t *)W_CacheLumpNum(lump);
+
+  if ((!data) || (!numsubsectors))
+    I_Error("P_LoadSubsectors_V4: no subsectors in level");
+
+  for (i=0; i<numsubsectors; i++)
+  {
+    subsectors[i].numlines  = (int)(data[i].numsegs );
+    subsectors[i].firstline = (int)(data[i].firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -619,6 +717,51 @@ static void P_LoadNodes (int lump)
           else if (no->children[j] & 0x8000) // old NF_SUBSECTOR
             no->children[j] = (no->children[j] &~ 0x8000) | NF_SUBSECTOR;
 
+          for (k=0 ; k<4 ; k++)
+            no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
+        }
+    }
+
+  W_UnlockLumpNum(lump); // cph - release the data
+}
+
+static void P_LoadNodes_V4 (int lump)
+{
+  const byte *data; // cph - const*
+  int  i;
+
+  numnodes = W_LumpLength (lump) / sizeof(mapnode_v4_t);
+  nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);
+  data = W_CacheLumpNum (lump); // cph - wad lump handling updated
+
+  // skip header
+  data = data + 8;
+
+  if ((!data) || (!numnodes))
+  {
+    // allow trivial maps
+    if (numsubsectors == 1)
+      lprintf(LO_INFO,
+          "P_LoadNodes_V4: trivial map (no nodes, one subsector)\n");
+    else
+      I_Error("P_LoadNodes_V4: no nodes in level");
+  }
+
+  for (i=0; i<numnodes; i++)
+    {
+      node_t *no = nodes + i;
+      const mapnode_v4_t *mn = (const mapnode_v4_t *) data + i;
+      int j;
+
+      no->x = SHORT(mn->x)<<FRACBITS;
+      no->y = SHORT(mn->y)<<FRACBITS;
+      no->dx = SHORT(mn->dx)<<FRACBITS;
+      no->dy = SHORT(mn->dy)<<FRACBITS;
+
+      for (j=0 ; j<2 ; j++)
+        {
+          int k;
+          no->children[j] = (unsigned int)(mn->children[j]);
           for (k=0 ; k<4 ; k++)
             no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
         }
@@ -1602,9 +1745,18 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   }
   else
   {
-    P_LoadSubsectors(lumpnum + ML_SSECTORS);
-    P_LoadNodes(lumpnum + ML_NODES);
-    P_LoadSegs(lumpnum + ML_SEGS);
+    if (P_CheckForDeePBSPv4Nodes(lumpnum, gl_lumpnum))
+    {
+      P_LoadSubsectors_V4(lumpnum + ML_SSECTORS);
+      P_LoadNodes_V4(lumpnum + ML_NODES);
+      P_LoadSegs_V4(lumpnum + ML_SEGS);
+    }
+    else
+    {
+      P_LoadSubsectors(lumpnum + ML_SSECTORS);
+      P_LoadNodes(lumpnum + ML_NODES);
+      P_LoadSegs(lumpnum + ML_SEGS);
+    }
   }
 
 #else
