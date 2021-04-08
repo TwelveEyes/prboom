@@ -295,7 +295,7 @@ typedef struct
 {
   fixed_t  x,  y, dx, dy;        // Partition line.
   fixed_t bbox[2][4];            // Bounding box for each child.
-  unsigned int children[2];      // If NF_SUBSECTOR its a subsector.
+  int children[2];      // If NF_SUBSECTOR its a subsector.
 } node_t;
 
 //
