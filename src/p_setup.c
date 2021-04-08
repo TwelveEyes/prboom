@@ -425,8 +425,8 @@ static void P_LoadSegs (int lump)
 
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 
-      v1 = (unsigned int)SHORT(ml->v1);
-      v2 = (unsigned int)SHORT(ml->v2);
+      v1 = (unsigned short)SHORT(ml->v1);
+      v2 = (unsigned short)SHORT(ml->v2);
       li->v1 = &vertexes[v1];
       li->v2 = &vertexes[v2];
 
@@ -434,7 +434,7 @@ static void P_LoadSegs (int lump)
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
-      linedef = (unsigned int)SHORT(ml->linedef);
+      linedef = (unsigned short)SHORT(ml->linedef);
       ldef = &lines[linedef];
       li->linedef = ldef;
       side = SHORT(ml->side);
@@ -603,8 +603,8 @@ static void P_LoadSubsectors (int lump)
   ss = subsectors;
   for (i=0; i<numsubsectors; i++, ss++, ms++)
   {
-    ss->numlines  = (unsigned int)SHORT(ms->numsegs );
-    ss->firstline = (unsigned int)SHORT(ms->firstseg);
+    ss->numlines  = (unsigned short)SHORT(ms->numsegs );
+    ss->firstline = (unsigned short)SHORT(ms->firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -631,7 +631,6 @@ static void P_LoadSubsectors_V4 (int lump)
 
   W_UnlockLumpNum(lump); // cph - release the data
 }
-
 
 //
 // P_LoadSectors
