@@ -732,8 +732,8 @@ static void P_LoadNodes (int lump)
           no->children[j] = (unsigned short)SHORT(mn->children[j]);
 
           // account for children's promotion to 32 bits
-          if (no->children[j] == 0xffff)
-            no->children[j] = 0xffffffff;
+          if (no->children[j] == 0xFFFF)
+            no->children[j] = 0xFFFFFFFF;
           else if (no->children[j] & 0x8000) // old NF_SUBSECTOR
             no->children[j] = (no->children[j] &~ 0x8000) | NF_SUBSECTOR;
 
