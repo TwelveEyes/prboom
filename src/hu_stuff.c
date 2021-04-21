@@ -78,10 +78,10 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_COORDY_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
 #define HU_COORDZ_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
 // [FG] level stats and level time widgets
-#define HU_LSTATK_Y (16 + 16*hu_font['A'-HU_FONTSTART].height)
-#define HU_LSTATI_Y (17 + 17*hu_font['A'-HU_FONTSTART].height)
-#define HU_LSTATS_Y (18 + 18*hu_font['A'-HU_FONTSTART].height)
-#define HU_LTIME_Y  (19 + 19*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATK_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATI_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
+#define HU_LSTATS_Y (4 + 3*hu_font['A'-HU_FONTSTART].height)
+#define HU_LTIME_Y  (5 + 4*hu_font['A'-HU_FONTSTART].height)
 
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
@@ -683,7 +683,7 @@ void HU_Start(void)
     hudcolor_mesg
   );
 
-  if (map_level_stats)
+  if (map_level_stats && hud_msg_lines < 2)
   {
     sprintf(hud_lstatk, "K: %d/%d", 0, 0);
     s = hud_lstatk;
@@ -699,7 +699,7 @@ void HU_Start(void)
       HUlib_addCharToTextLine(&w_lstats, *s++);
   }
 
-  if (map_level_time)
+  if (map_level_time && hud_msg_lines < 2)
   {
     sprintf(hud_ltime, "%02d:%02d:%02d", 0, 0, 0);
     s = hud_ltime;
@@ -874,7 +874,7 @@ void HU_Drawer(void)
     }
 
     // [FG] draw level stats widget
-    if (map_level_stats)
+    if (map_level_stats && hud_msg_lines < 2)
     {
       HUlib_drawTextLine(&w_lstatk, false);
       HUlib_drawTextLine(&w_lstati, false);
@@ -882,7 +882,7 @@ void HU_Drawer(void)
     }
 
     // [FG] draw level time widget
-    if (map_level_time)
+    if (map_level_time && hud_msg_lines < 2)
     {
       HUlib_drawTextLine(&w_ltime, false);
     }
@@ -1525,7 +1525,7 @@ void HU_Ticker(void)
     {
       char *s;
 
-      if (map_level_stats)
+      if (map_level_stats && hud_msg_lines < 2)
       {
         sprintf(hud_lstatk, "K: %d/%d", plr->killcount, totalkills);
         HUlib_clearTextLine(&w_lstatk);
@@ -1546,7 +1546,7 @@ void HU_Ticker(void)
           HUlib_addCharToTextLine(&w_lstats, *s++);
       }
 
-      if (map_level_time)
+      if (map_level_time && hud_msg_lines < 2)
       {
         const int time = leveltime / TICRATE; // [FG] in seconds
 
